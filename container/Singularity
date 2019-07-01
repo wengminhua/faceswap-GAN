@@ -1,0 +1,15 @@
+Bootstrap: docker
+From: nvidia/cuda:10.1-cudnn7-devel-centos7
+
+%post
+  yum -y update \
+    && yum -y install curl bzip2 openssl git libSM libXrender libXext zip unzip \
+    && curl -sSL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh \
+    && bash /tmp/miniconda.sh -bfp /usr/local/ \
+    && rm -rf /tmp/miniconda.sh \
+    && conda install -y python=3 \
+    && conda install -y jupyter notebook \
+    && conda update conda \
+    && conda clean --all --yes \
+    && rpm -e --nodeps curl bzip2 \
+    && yum clean all
