@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import os
 import yaml
+import random
 
 def get_image_paths(directory):
     return [x.path for x in os.scandir(directory) if x.name.endswith(".jpg") or x.name.endswith(".png")]
@@ -131,3 +132,30 @@ def show_loss_config(loss_config):
     """
     for config, value in loss_config.items():
         print(f"{config} = {value}")
+
+def display_single_face_detection_result(faces_path, face_filename):
+    raw_image = Image.open(os.path.join(faces_path, 'raw_faces', face_filename))
+    aligned_image = Image.open(os.path.join(faces_path, 'aligned_faces', face_filename))
+    masks_image = Image.open(os.path.join(faces_path, 'binary_masks_eyes', face_filename))
+    display_image = Image.new('RGB', (raw_image.size[0]*3, raw_image.size[1]))
+    display_image.paste(raw_image, (0, 0))
+    display_image.paste(aligned_image, (raw_image.size[0], 0))
+    display_image.paste(masks_image, (raw_image.size[0]*2, 0))
+    print(face_filename)
+    display(display_image)
+        
+def display_face_detection_result(faces_path, number=10, use_random=True):
+    raw_path = os.path.join(faces_path, 'raw_faces')
+    files = os.listdir(raw_path)
+    print('Total faces: %d' % len(files))
+    skip = int(len(files) / number)
+    if use_random:
+        skip = random.randint(1, skip)
+    index = 0
+    count = 0
+    for file in files:
+        raw_file_path = os.path.join(raw_path, file)
+        if os.path.isfile(raw_file_path) and index%skip == 0 and count < number:
+            display_single_face_detection_result(faces_path, file)
+            count += 1
+        index += 1
